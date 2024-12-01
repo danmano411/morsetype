@@ -30,45 +30,51 @@ const TypingTest: React.FC<TypingTestProps> = ({ mode, setScore }) => {
   //     }
   //   }, [timeLeft]);
 
-  onkeydown = (key: {code: string}) => {
-    if (key.code === "Enter" && inputIsFocused && canType) {
+  useEffect(() => {
+    const handleKeyDown = (key: KeyboardEvent) => {
+      if (key.code === "Enter" && inputIsFocused && canType) {
         setCanType(false);
         if (userInput === "") {
-            setCheckState("wrong");
-            setUserInput(" ");
-            setTimeout(() => {
-                setCanType(true);
-                resetGame();
-                setCheckState("neutral");
-            }, delay);
-            return;
-        }
-
-        if (mode === "morse-to-alphabet") {
-            if (morseToAlphabet[currentPrompt] === userInput.toLowerCase()) {
-                setScore(oldScore => oldScore + 1);
-                setCheckState("right");
-            } else {
-                setScore(oldScore => oldScore - 1);
-                setCheckState("wrong");
-            }
-        } 
-        else if (mode === "alphabet-to-morse") {
-            if (alphabetToMorse[currentPrompt.toLowerCase()] === userInput){
-                setScore(oldScore => oldScore + 1);
-                setCheckState("right");
-            } else {
-                setScore(oldScore => oldScore - 1);
-                setCheckState("wrong");
-            }
-        }
-        setTimeout(() => {
+          setCheckState("wrong");
+          setUserInput(" ");
+          setTimeout(() => {
             setCanType(true);
             resetGame();
             setCheckState("neutral");
+          }, delay);
+          return;
+        }
+
+        if (mode === "morse-to-alphabet") {
+          if (morseToAlphabet[currentPrompt] === userInput.toLowerCase()) {
+            setScore((oldScore) => oldScore + 1);
+            setCheckState("right");
+          } else {
+            setScore((oldScore) => oldScore - 1);
+            setCheckState("wrong");
+          }
+        } else if (mode === "alphabet-to-morse") {
+          if (alphabetToMorse[currentPrompt.toLowerCase()] === userInput) {
+            setScore((oldScore) => oldScore + 1);
+            setCheckState("right");
+          } else {
+            setScore((oldScore) => oldScore - 1);
+            setCheckState("wrong");
+          }
+        }
+        setTimeout(() => {
+          setCanType(true);
+          resetGame();
+          setCheckState("neutral");
         }, delay);
-    }
-  }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [inputIsFocused, canType, userInput, currentPrompt, mode, setScore]);
 
   const resetGame = () => {
     // Generate a new prompt
